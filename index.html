@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Exit Connect — IndiaMART</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --brand:       #E8192C;
+    --brand-dark:  #B5121F;
+    --brand-light: #fdecea;
+    --navy:        #1B1464;
+    --navy-light:  #eeedf8;
+    --red:         #c0392b;
+    --amber:       #e67e22;
+    --gray-50:     #f8f9fa;
+    --gray-100:    #f1f3f5;
+    --gray-200:    #e9ecef;
+    --gray-400:    #adb5bd;
+    --gray-600:    #6c757d;
+    --gray-800:    #343a40;
+    --border:      #dee2e6;
+    --radius:      10px;
+    --shadow:      0 2px 12px rgba(0,0,0,0.08);
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f5f5f7;
+    color: var(--gray-800);
+    min-height: 100vh;
+    padding: 24px 16px 60px;
+  }
+  .card {
+    max-width: 620px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .header {
+    background: var(--navy);
+    padding: 0 0 0 0;
+    color: #fff;
+  }
+  .header-top {
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px 24px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .logo-wrap {
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .logo-m {
+    width: 64px; height: 64px;
+    object-fit: contain;
+  }
+  .header-titles {}
+  .header-titles .org { font-size: 11px; opacity: 0.6; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 2px; }
+  .header-titles h1 { font-size: 17px; font-weight: 600; }
+  .header-bottom { padding: 10px 24px 14px; }
+  .progress-wrap { background: rgba(255,255,255,0.15); height: 4px; border-radius: 2px; margin-bottom: 6px; }
+  .progress-fill { height: 4px; background: var(--brand); border-radius: 2px; transition: width 0.35s ease; }
+  .step-info { display: flex; justify-content: space-between; align-items: center; }
+  .step-info span { font-size: 11px; opacity: 0.7; }
+
+  .body { padding: 28px 28px 20px; }
+  .section-title { font-size: 15px; font-weight: 600; color: var(--navy); margin-bottom: 4px; }
+  .section-sub { font-size: 13px; color: var(--gray-600); margin-bottom: 22px; line-height: 1.5; }
+
+  .field { margin-bottom: 18px; }
+  .field label { display: block; font-size: 13px; font-weight: 500; color: var(--gray-800); margin-bottom: 6px; }
+  .field label .req { color: var(--brand); margin-left: 2px; }
+  .field label .opt { color: var(--gray-400); font-weight: 400; font-size: 11px; margin-left: 4px; }
+  input[type=text], input[type=email], select, textarea {
+    width: 100%; padding: 10px 13px;
+    border: 1.5px solid var(--border); border-radius: 8px;
+    font-size: 14px; color: var(--gray-800);
+    font-family: inherit; background: #fff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    -webkit-appearance: none;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none; border-color: var(--brand);
+    box-shadow: 0 0 0 3px rgba(232,25,44,0.1);
+  }
+  .reason-grid { display: flex; flex-direction: column; gap: 6px; }
+  .reason-opt {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 13px; border: 1.5px solid var(--border);
+    border-radius: 8px; cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .reason-opt:hover { border-color: var(--brand); background: var(--brand-light); }
+  .reason-opt.active { border-color: var(--brand); background: var(--brand-light); }
+  .reason-opt input[type=radio] { accent-color: var(--brand); flex-shrink: 0; margin-top: 2px; width: 16px; height: 16px; }
+  .reason-opt .reason-text { display: flex; flex-direction: column; gap: 2px; padding-top: 0; }
+  .reason-opt .reason-text .reason-label { font-size: 13.5px; font-weight: 500; color: var(--gray-800); line-height: 1.4; }
+  .reason-opt.active .reason-text .reason-label { color: var(--brand-dark); }
+  .reason-opt .reason-text .reason-sub { font-size: 11.5px; color: var(--gray-400); line-height: 1.4; font-style: italic; }
+  textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+  .err-msg { font-size: 12px; color: var(--red); margin-top: 4px; display: none; }
+  .err-msg.show { display: block; }
+
+  .radio-grid { display: flex; flex-direction: column; gap: 7px; }
+  .radio-opt {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 13px; border: 1.5px solid var(--border);
+    border-radius: 8px; cursor: pointer; font-size: 13.5px;
+    transition: border-color 0.15s, background 0.15s; color: var(--gray-800);
+  }
+  .radio-opt:hover { border-color: var(--brand); background: var(--brand-light); }
+  .radio-opt.active { border-color: var(--brand); background: var(--brand-light); color: var(--brand-dark); font-weight: 500; }
+  .radio-opt input[type=radio] { accent-color: var(--brand); flex-shrink: 0; }
+  .radio-opt.error-border { border-color: var(--red); }
+
+  .rating-block { border: 1.5px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 10px; }
+  .rating-row-item { display: flex; align-items: center; justify-content: space-between; padding: 11px 14px; border-bottom: 1px solid var(--border); }
+  .rating-row-item:last-child { border-bottom: none; }
+  .rating-label { font-size: 13.5px; color: var(--gray-800); min-width: 160px; }
+  .rating-btns { display: flex; gap: 5px; }
+  .rb {
+    width: 36px; height: 32px; border: 1.5px solid var(--border); border-radius: 6px;
+    background: #fff; font-size: 12px; font-weight: 500; cursor: pointer;
+    color: var(--gray-600); transition: all 0.15s; display: flex; align-items: center; justify-content: center;
+  }
+  .rb:hover { border-color: var(--brand); color: var(--brand); }
+  .rb.r-low { background: #fdf0ee; border-color: #c0392b; color: #c0392b; }
+  .rb.r-mid { background: #fef6ec; border-color: var(--amber); color: #b7601a; }
+  .rb.r-high { background: #eaf7ee; border-color: #27ae60; color: #1a7a40; }
+  .rating-scale-hint { display: flex; justify-content: space-between; padding: 0 14px 8px; font-size: 11px; color: var(--gray-400); }
+  .followup-box {
+    background: #fdf0ee; border-left: 3px solid var(--red);
+    padding: 10px 13px; margin: 0 14px 12px; border-radius: 0 6px 6px 0;
+  }
+  .followup-box p { font-size: 12px; color: var(--red); margin-bottom: 6px; font-weight: 500; }
+  .followup-box textarea { min-height: 56px; font-size: 13px; background: #fff; }
+
+  .conditional-block {
+    background: var(--gray-50); border: 1.5px dashed var(--border);
+    border-radius: 8px; padding: 16px; margin-top: 6px;
+  }
+  .conditional-block .cond-tag { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gray-400); margin-bottom: 14px; }
+
+  .salary-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+
+  .footer { padding: 16px 28px 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .btn-back {
+    padding: 9px 18px; border: 1.5px solid var(--border); border-radius: 8px;
+    background: transparent; cursor: pointer; font-size: 14px; color: var(--gray-600);
+    font-family: inherit; transition: all 0.15s;
+  }
+  .btn-back:hover { background: var(--gray-100); }
+  .btn-next {
+    padding: 10px 26px; border: none; border-radius: 8px;
+    background: var(--brand); color: #fff; font-size: 14px; font-weight: 600;
+    cursor: pointer; font-family: inherit; transition: background 0.15s;
+  }
+  .btn-next:hover { background: var(--brand-dark); }
+  .btn-next:disabled { background: var(--gray-200); color: var(--gray-400); cursor: not-allowed; }
+
+  .success-wrap { padding: 48px 28px; text-align: center; }
+  .success-icon { font-size: 52px; margin-bottom: 16px; }
+  .success-wrap h2 { font-size: 20px; font-weight: 600; margin-bottom: 8px; color: var(--navy); }
+  .success-wrap p { font-size: 14px; color: var(--gray-600); line-height: 1.6; max-width: 380px; margin: 0 auto; }
+  .success-wrap .reset-btn {
+    margin-top: 24px; padding: 10px 22px; border: 1.5px solid var(--brand);
+    border-radius: 8px; background: transparent; cursor: pointer;
+    font-size: 14px; color: var(--brand); font-family: inherit; transition: all 0.15s;
+  }
+  .success-wrap .reset-btn:hover { background: var(--brand-light); }
+
+  .submitting-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(255,255,255,0.85); z-index: 100;
+    align-items: center; justify-content: center;
+    font-size: 15px; color: var(--navy); font-weight: 500;
+  }
+  .submitting-overlay.show { display: flex; }
+  .spinner {
+    width: 20px; height: 20px; border: 2.5px solid var(--brand-light);
+    border-top-color: var(--brand); border-radius: 50%;
+    animation: spin 0.7s linear infinite; margin-right: 10px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 480px) {
+    .body { padding: 20px 16px 16px; }
+    .footer { padding: 14px 16px 20px; }
+    .header-top { padding: 12px 16px 10px; }
+    .header-bottom { padding: 8px 16px 12px; }
+    .salary-2col { grid-template-columns: 1fr; }
+    .rating-label { min-width: 100px; font-size: 12.5px; }
+    .rb { width: 30px; height: 28px; font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="submitting-overlay" id="overlay">
+  <div class="spinner"></div> Submitting...
+</div>
+
+<div class="card" id="form-card">
+  <div class="header">
+    <div class="header-top">
+      <div class="header-titles">
+        <div class="org">IndiaMART InterMESH Ltd</div>
+        <h1>Exit Connect</h1>
+      </div>
+    </div>
+    <div class="header-bottom">
+      <div class="progress-wrap"><div class="progress-fill" id="prog" style="width:33%"></div></div>
+      <div class="step-info">
+        <span id="step-label">Step 1 of 3</span>
+        <span id="step-name">Employee Details</span>
+      </div>
+    </div>
+  </div>
+  <div id="form-body"></div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// CONFIGURATION — replace with your Apps Script Web App URL
+// ─────────────────────────────────────────────
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbwv7ky_NESN0eDFk1T-vj-6BNXNU5rHr0Epk2FhwNKm1v4jjC9nXiwb3DaDZKrq69m6/exec";
+
+const LEAVE_REASONS = [
+  "Better Salary/Benefits",
+  "Career Growth",
+  "Lack of Learning Opportunities",
+  "Work-Life Balance",
+  "Dissatisfaction with Manager/Team",
+  "Role Mismatch",
+  "Returning to Native Place (For a Job)",
+  "Returning to Native Place (Personal Reasons)",
+  "Pursuing Further Education"
+];
+
+const REASON_SUBTEXTS = {
+  "Better Salary/Benefits": "New job pays more or offers better perks. Choose this only if compensation is the primary reason.",
+  "Career Growth": "Moving to a role with greater responsibilities, faster advancement, or a stronger growth trajectory.",
+  "Lack of Learning Opportunities": "Felt the role stopped being challenging or developmental. No new skills, stretch projects, or growth.",
+  "Work-Life Balance": "Workload, hours, or pressure became unsustainable. Choose this if personal time was consistently affected.",
+  "Dissatisfaction with Manager/Team": "Relationship with manager or team was a key reason. Choose this only if it was a direct driver.",
+  "Role Mismatch": "Day-to-day work didn't match what was expected or promised at joining.",
+  "Returning to Native Place (For a Job)": "Relocating to hometown and taking up employment there. Choose this if location is the primary driver.",
+  "Returning to Native Place (Personal Reasons)": "Moving to a different city for personal or family reasons that are not related to hometown return.",
+  "Pursuing Further Education": "Full-time MBA, postgraduate, or academic programme. Not switching to another job."
+};
+const SALARY_RANGES = [
+  "Below ₹4 LPA","₹4–6 LPA","₹6–9 LPA","₹9–13 LPA",
+  "₹13–18 LPA","₹18–25 LPA","Above ₹25 LPA","Not disclosed"
+];
+const NOTICE_OPTS = ["Yes, complete","Yes, partial","No — buyout/waiver"];
+const ROLE_NATURE = [
+  "IC → IC (Individual Contributor)",
+  "IC → Team Lead",
+  "Team Lead → Team Lead",
+  "Starting own venture",
+  "Not applicable"
+];
+const FUNCTION_OPTS = ["Same function (e.g. Sales → Sales)","Different function (e.g. Sales → HR)","Not applicable"];
+const LOCATION_OPTS = ["Closer to hometown","Further from hometown","Same city / no change","Not applicable"];
+const RETURN_OPTS = ["Yes, definitely","Maybe — depends on role/team","Unlikely","Definitely not"];
+
+const NON_JOB_REASONS = ["Pursuing Further Education","Others","Returning to Native Place (Personal Reasons)"];
+const PURELY_PERSONAL = ["Pursuing Further Education","Returning to Native Place (Personal Reasons)"];
+const SKIP_INTERNAL_MOBILITY = ["Pursuing Further Education","Role Mismatch","Career Growth"];
+
+// Push-pull not meaningful for these reasons
+const SKIP_PUSH_PULL = [
+  "Pursuing Further Education",
+  "Returning to Native Place (For a Job)",
+  "Returning to Native Place (Personal Reasons)",
+  "Dissatisfaction with Manager/Team",
+  "Role Mismatch"
+];
+const YES_NO_PARTLY = ["Yes","Partly","No"];
+
+const REASON_QUESTIONS = {
+  "Better Salary/Benefits": {
+    q: "Did IndiaMART make a counter-offer or discuss a salary revision before you decided to leave?",
+    opts: ["Yes — but I still chose to leave","No — it was not discussed","Not applicable"],
+    context: "Any additional context on the compensation gap or negotiation?"
+  },
+  "Career Growth": {
+    q: "Was a promotion, role change, or career path discussed with your manager or HR before you decided to leave?",
+    opts: ["Yes — but nothing concrete happened","Yes — and a plan was made but too late","No — it was never discussed"],
+    context: "Anything specific about the growth opportunity you were looking for?"
+  },
+  "Lack of Learning Opportunities": {
+    q: "Did you raise your concerns about learning or development with your manager or HR?",
+    opts: ["Yes — but nothing changed","Yes — some action was taken but insufficient","No — I did not raise it"],
+    context: "What kind of learning or development were you looking for?"
+  },
+  "Work-Life Balance": {
+    q: "Was a flexibility arrangement (WFH, adjusted hours, etc.) ever discussed or offered?",
+    opts: ["Yes — but it wasn't sufficient","No — it was never discussed","Not applicable"],
+    context: "What specifically contributed most to the work-life imbalance?"
+  },
+  "Dissatisfaction with Manager/Team": {
+    q: "Was this concern escalated to HR or senior leadership at any point?",
+    opts: ["Yes — and it was addressed partially","Yes — but nothing changed","No — it was not escalated"],
+    context: "Any additional context on what specifically didn't work?"
+  },
+  "Role Mismatch": {
+    q: "Was an internal role change or redeployment discussed before you decided to leave?",
+    opts: ["Yes — but nothing suitable was available","Yes — but it took too long","No — it was never discussed"],
+    context: "What kind of role would have been a better fit for you?"
+  },
+  "Returning to Native Place (For a Job)": {
+    q: "Was a transfer or remote working arrangement ever explored to retain you?",
+    opts: ["Yes — but not feasible","No — it was not explored","Not applicable"],
+    context: "Any additional context you'd like to share?"
+  },
+  "Returning to Native Place (Personal Reasons)": {
+    q: null,
+    context: "Please share any context that may help us understand this better."
+  },
+  "Pursuing Further Education": {
+    q: "What type of programme are you pursuing?",
+    opts: ["Full-time MBA","Postgraduate degree","Professional certification","Other"],
+    context: "Institution name or any additional context (optional)."
+  }
+};
+
+
+let step = 0;
+let data = {
+  empName:"", empId:"", hrbpEmail:"", noticePeriod:"",
+  leaveReason:"", roleNature:"", sameFunction:"", locationProximity:"",
+  newOrg:"", newDesignation:"", newIndustry:"", newSalaryRange:"", newSalaryExact:"", newSalaryExact:"",
+  skillUtil:"", fairness:"", psychSafety:"", workExpNotes:"",
+  internalMobility:"", internalMobilityComment:"",
+  resourceAdequacy:"", leadershipTransparency:"", teamSuccession:"",
+  ratingManager:null, ratingPeers:null, ratingWorkEnv:null, ratingLG:null,
+  feedbackManager:"", feedbackPeers:"", feedbackWorkEnv:"", feedbackLG:"",
+  pushPull:"", reasonQ1:"", reasonContext:"",
+  nps:null, whatTriggered:"", whatWouldStay:"", wouldReturn:"", additionalComments:""
+};
+
+const STEPS = [
+  { pct:"20%",  label:"Step 1 of 5", name:"Employee Details" },
+  { pct:"40%",  label:"Step 2 of 5", name:"Departure Details" },
+  { pct:"60%",  label:"Step 3 of 5", name:"Work Experience" },
+  { pct:"80%",  label:"Step 4 of 5", name:"Satisfaction Ratings" },
+  { pct:"100%", label:"Step 5 of 5", name:"Exit Insights" }
+];
+
+function render() {
+  const s = STEPS[step];
+  document.getElementById("prog").style.width = s.pct;
+  document.getElementById("step-label").textContent = s.label;
+  document.getElementById("step-name").textContent = s.name;
+  let html = `<div class="body" id="step-body">`;
+  if (step === 0) html += renderStep0();
+  if (step === 1) html += renderStep1();
+  if (step === 2) html += renderStep2();
+  if (step === 3) html += renderStep3();
+  if (step === 4) html += renderStep4();
+  html += `</div>`;
+  html += `<div class="footer">
+    ${step > 0 ? `<button class="btn-back" onclick="goBack()">← Back</button>` : `<span></span>`}
+    <button class="btn-next" id="btn-next" onclick="goNext()">${step === 4 ? "Submit ✓" : "Continue →"}</button>
+  </div>`;
+  document.getElementById("form-body").innerHTML = html;
+  bindEvents();
+}
+
+// ─── STEP 1: Employee Details ────────────────────────────────────────────────
+function renderStep0() {
+  return `
+  <div class="section-title">Employee Details</div>
+  <div class="field">
+    <label>Employee Name <span class="req">*</span></label>
+    <input type="text" id="empName" value="${esc(data.empName)}" placeholder="Full name" />
+    <div class="err-msg" id="err-empName">Please enter employee name</div>
+  </div>
+  <div class="field">
+    <label>Employee ID <span class="req">*</span></label>
+    <input type="text" inputmode="numeric" id="empId" value="${esc(data.empId)}" placeholder="Numeric ID e.g. 114655" />
+    <div class="err-msg" id="err-empId">Employee ID must be numeric</div>
+  </div>
+  <div class="field">
+    <label>Email <span class="req">*</span></label>
+    <input type="email" id="hrbpEmail" value="${esc(data.hrbpEmail)}" placeholder="yourname@indiamart.com"
+      onblur="validateEmail(this)" oninput="clearEmailErr(this)" />
+    <div class="err-msg" id="err-hrbpEmail">Please enter a valid @indiamart.com email</div>
+  </div>
+  <div class="field">
+    <label>Are you serving your notice period? <span class="req">*</span></label>
+    <div class="radio-grid" id="rg-noticePeriod">
+      ${NOTICE_OPTS.map(o => radioOpt("noticePeriod", o, data.noticePeriod === o)).join("")}
+    </div>
+    <div class="err-msg" id="err-noticePeriod">Please select an option</div>
+  </div>
+  <div class="field">
+    <label>What is your primary reason for leaving? <span class="req">*</span></label>
+    <div class="reason-grid">
+      ${LEAVE_REASONS.map(r => `
+      <label class="reason-opt ${data.leaveReason===r?"active":""}" onclick="pick('leaveReason','${r}')">
+        <input type="radio" name="leaveReason" ${data.leaveReason===r?"checked":""} />
+        <div class="reason-text">
+          <div class="reason-label">${r}</div>
+          <div class="reason-sub">${REASON_SUBTEXTS[r]}</div>
+        </div>
+      </label>`).join("")}
+    </div>
+    <div class="err-msg" id="err-leaveReason">Please select a reason</div>
+  </div>
+  ${data.leaveReason && !SKIP_PUSH_PULL.includes(data.leaveReason) ? `
+  <div class="field">
+    <label>Was this exit more of a <strong>pull</strong> or a <strong>push</strong>? <span class="req">*</span></label>
+    <p style="font-size:12px;color:var(--gray-600);margin:-2px 0 10px;line-height:1.5">Pull = attracted by a new opportunity &nbsp;·&nbsp; Push = dissatisfied with something here &nbsp;·&nbsp; Mix = both played a role</p>
+    <div class="radio-grid" id="rg-pushPull">
+      ${["Primarily a pull (attractive external opportunity)","Primarily a push (dissatisfied at IndiaMART)","Equal mix of both"].map(o => radioOpt("pushPull", o, data.pushPull===o)).join("")}
+    </div>
+    <div class="err-msg" id="err-pushPull">Please select an option</div>
+  </div>` : ""}
+  `;
+}
+
+// helper: Yes/Partly/No with text box on non-Yes
+function yesNoField(fieldKey, commentKey, label, required) {
+  const val = data[fieldKey];
+  const showComment = val === "Partly" || val === "No";
+  // Map virtual comment keys to workExpNotes with a prefix tag
+  const commentVal = commentKey.startsWith("workExpNotes") ? "" : (data[commentKey] || "");
+  const reqSpan = required ? `<span class="req">*</span>` : `<span class="opt">(optional)</span>`;
+  const errId = `err-${fieldKey}`;
+  return `
+  <div class="field">
+    <label>${label} ${reqSpan}</label>
+    <div class="radio-grid">${YES_NO_PARTLY.map(o => radioOpt(fieldKey, o, val===o)).join("")}</div>
+    ${required ? `<div class="err-msg" id="${errId}">Please select an option</div>` : ""}
+    ${showComment ? `<textarea style="margin-top:8px" id="${commentKey}" placeholder="Please briefly explain..." onblur="appendWorkExpNotes('${fieldKey}',this.value)">${esc(commentVal)}</textarea>` : ""}
+  </div>`;
+}
+
+function appendWorkExpNotes(fieldKey, val) {
+  if (!val.trim()) return;
+  const tag = fieldKey === "skillUtil" ? "[Skills]" : fieldKey === "fairness" ? "[Fairness]" : "[Psych Safety]";
+  // Replace or append the tagged section
+  const existing = data.workExpNotes || "";
+  const regex = new RegExp(tag.replace("[","\[").replace("]","\]") + "[^\[]*");
+  if (regex.test(existing)) {
+    data.workExpNotes = existing.replace(regex, tag + " " + val + " ");
+  } else {
+    data.workExpNotes = (existing + " " + tag + " " + val).trim();
+  }
+}
+
+// ─── STEP 2: Departure Details ───────────────────────────────────────────────
+function renderStep1() {
+  const showJobBlock = !NON_JOB_REASONS.includes(data.leaveReason);
+  const rq = REASON_QUESTIONS[data.leaveReason];
+
+  // Reason-specific block at top — mandatory MCQ + "Not shared" option
+  const reasonBlock = rq ? `
+  <div style="border-left:3px solid var(--brand);padding:16px;margin-bottom:20px;background:#fff;border-radius:0 8px 8px 0;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border)">
+    <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.07em;color:var(--brand);font-weight:600;margin-bottom:14px">Follow-up on: ${data.leaveReason}</div>
+    ${rq.q ? `
+    <div class="field">
+      <label>${rq.q} <span class="req">*</span></label>
+      <div class="radio-grid">
+        ${[...rq.opts, "Prefer not to share"].map(o => radioOpt("reasonQ1", o, data.reasonQ1===o)).join("")}
+      </div>
+      <div class="err-msg" id="err-reasonQ1">Please select an option</div>
+    </div>` : ""}
+    <div class="field">
+      <label>${rq.context} <span class="opt">(optional)</span></label>
+      <textarea id="reasonContext" placeholder="Share any additional context here..." onblur="syncF('reasonContext','reasonContext')">${esc(data.reasonContext)}</textarea>
+    </div>
+  </div>` : "";
+
+  if (!showJobBlock) {
+    return `
+    <div class="section-title">Departure Details</div>
+    ${reasonBlock}
+    <p style="font-size:13.5px;color:var(--gray-600);line-height:1.6;padding:8px 0 4px">
+      No new role details needed. Click <strong>Continue</strong> to proceed.
+    </p>`;
+  }
+  return `
+  <div class="section-title">Departure Details</div>
+  ${reasonBlock}
+  <p style="font-size:12.5px;color:var(--gray-600);margin-bottom:18px;">Write <strong>NA</strong> for any field where information was not shared.</p>
+  <div class="field">
+    <label>What is the nature of your new role? <span class="opt">(optional)</span></label>
+    <div class="radio-grid">${ROLE_NATURE.map(o => radioOpt("roleNature", o, data.roleNature===o)).join("")}</div>
+  </div>
+  <div class="field">
+    <label>Are you moving to the same function or a different one? <span class="opt">(optional)</span></label>
+    <div class="radio-grid">${FUNCTION_OPTS.map(o => radioOpt("sameFunction", o, data.sameFunction===o)).join("")}</div>
+  </div>
+  <div class="field">
+    <label>Is your new job closer to or further from your hometown? <span class="opt">(optional)</span></label>
+    <div class="radio-grid">${LOCATION_OPTS.map(o => radioOpt("locationProximity", o, data.locationProximity===o)).join("")}</div>
+  </div>
+  <div class="field">
+    <label>New organisation <span class="req">*</span></label>
+    <input type="text" id="newOrg" value="${esc(data.newOrg)}" placeholder="Company name or NA" onblur="syncF('newOrg','newOrg')" />
+    <div class="err-msg" id="err-newOrg">Please fill this in or write NA</div>
+  </div>
+  <div class="field">
+    <label>New industry <span class="req">*</span></label>
+    <input type="text" id="newIndustry" value="${esc(data.newIndustry)}" placeholder="e.g. E-commerce, BFSI, EdTech or NA" onblur="syncF('newIndustry','newIndustry')" />
+    <div class="err-msg" id="err-newIndustry">Please fill this in or write NA</div>
+  </div>
+  <div class="field">
+    <label>New designation <span class="req">*</span></label>
+    <input type="text" id="newDesignation" value="${esc(data.newDesignation)}" placeholder="e.g. Senior Manager or NA" onblur="syncF('newDesignation','newDesignation')" />
+    <div class="err-msg" id="err-newDesignation">Please fill this in or write NA</div>
+  </div>
+  <div class="field">
+    <label>New salary range (CTC) <span class="req">*</span></label>
+    <div class="salary-2col">${SALARY_RANGES.map(r => radioOpt("newSalaryRange", r, data.newSalaryRange===r, "13px")).join("")}</div>
+    <div class="err-msg" id="err-newSalaryRange">Please select a salary range</div>
+  </div>
+  <div class="field">
+    <label>Exact CTC (if shared) <span class="opt">(optional)</span></label>
+    <input type="text" id="newSalaryExact" value="${esc(data.newSalaryExact)}" placeholder="e.g. ₹8.4 LPA or 70,000/month — write exactly as employee shared" onblur="syncF('newSalaryExact','newSalaryExact')" />
+  </div>`;
+}
+
+// ─── STEP 3: Work Experience Questions ────────────────────────────────────────
+function renderStep2() {
+  const reason = data.leaveReason;
+  const isPersonal = PURELY_PERSONAL.includes(reason);
+  const skipInternalMob = SKIP_INTERNAL_MOBILITY.includes(reason);
+  const isTeamLead = data.roleNature === "Team Lead → Team Lead";
+
+  const internalMobVal = data.internalMobility;
+  const showInternalComment = internalMobVal && internalMobVal !== "Yes — and I declined";
+
+  // Reasons where skillUtil was already captured in reason-specific Q
+  const skipSkillUtil = reason === "Lack of Learning Opportunities";
+  // Reason where fairness/recognition was already implied by reason-specific Q  
+  const skipFairness = reason === "Career Growth";
+
+  const workBlock = isPersonal ? `<p style="font-size:13px;color:var(--gray-600);padding:12px 0">No work experience questions needed for this exit type.</p>` : `
+    ${skipSkillUtil ? `<p style="font-size:12.5px;color:var(--gray-400);font-style:italic;margin-bottom:14px;">Skill utilisation was already covered in the previous step.</p>` : yesNoField("skillUtil","workExpNotes_skill","Did you feel your skills were fully utilised in your role?", true)}
+    ${skipFairness ? `<p style="font-size:12.5px;color:var(--gray-400);font-style:italic;margin-bottom:14px;">Career progression context was already covered in the previous step.</p>` : yesNoField("fairness","workExpNotes_fair","Did you feel career progression and recognition at IndiaMART were fair?", true)}
+    ${yesNoField("psychSafety","workExpNotes_psych","Did you feel comfortable raising concerns or disagreements at work?", true)}
+    ${skipInternalMob ? "" : `
+    <div class="field">
+      <label>Before deciding to leave, were you made aware of or offered any other role within IndiaMART? <span class="req">*</span></label>
+      <div class="radio-grid">${["Yes — and I declined","Yes — but nothing suitable","No — it was never discussed","Not applicable"].map(o => radioOpt("internalMobility", o, internalMobVal===o)).join("")}</div>
+      <div class="err-msg" id="err-internalMobility">Please select an option</div>
+      ${showInternalComment ? `<textarea style="margin-top:8px" id="internalMobilityComment" placeholder="Please briefly explain..." onblur="syncF('internalMobilityComment','internalMobilityComment')">${esc(data.internalMobilityComment)}</textarea>` : ""}
+    </div>`}`;
+
+  const teamLeadBlock = isTeamLead ? `
+  <div class="conditional-block" style="margin-top:16px">
+    <div class="cond-tag">As a team lead — additional questions</div>
+    ${yesNoField("resourceAdequacy","","Did you have adequate resources, headcount, and tools to deliver on your team's goals?", false)}
+    ${yesNoField("leadershipTransparency","","Did senior leadership communicate direction and priorities clearly to you?", false)}
+    <div class="field">
+      <label>How prepared is your team for this transition? <span class="opt">(optional)</span></label>
+      <div class="radio-grid">${["Well prepared","Partially prepared","Not prepared","Unsure"].map(o => radioOpt("teamSuccession", o, data.teamSuccession===o)).join("")}</div>
+    </div>
+  </div>` : "";
+
+  return `
+  <div class="section-title">Work Experience</div>
+  ${workBlock}
+  ${teamLeadBlock}`;
+}
+
+// ─── STEP 4: Satisfaction Ratings ─────────────────────────────────────────────
+function renderStep3() {
+  const ratingItems = [
+    { key:"Manager", label:"Your Reporting Manager" },
+    { key:"Peers", label:"Your Team / Peers" },
+    { key:"WorkEnv", label:"Work Environment" },
+    { key:"LG", label:"Learning & Growth Opportunities" }
+  ];
+  const rows = ratingItems.map(item => {
+    const val = data["rating"+item.key];
+    const followup = val !== null && val <= 2;
+    return `
+    <div class="rating-row-item">
+      <div class="rating-label">${item.label}</div>
+      <div class="rating-btns">
+        ${[1,2,3,4,5].map(n => {
+          let cls = val===n ? (n<=2?"r-low":n<=3?"r-mid":"r-high") : "";
+          return `<button class="rb ${cls}" onclick="setRating('rating${item.key}',${n})">${n}</button>`;
+        }).join("")}
+      </div>
+    </div>
+    ${followup ? `<div class="followup-box">
+      <p>⚠ You rated this low — can you tell us more?</p>
+      <textarea placeholder="What specifically didn't work? (Optional)" onblur="syncF('feedback${item.key}','fb${item.key}')" id="fb${item.key}">${esc(data["feedback"+item.key])}</textarea>
+    </div>` : ""}`;
+  }).join("");
+
+  return `
+  <div class="section-title">Satisfaction Ratings</div>
+  <div class="field">
+    <div class="rating-block">${rows}</div>
+    <div class="rating-scale-hint"><span>1 = Extremely dissatisfied</span><span>5 = Extremely satisfied</span></div>
+    <div class="err-msg" id="err-ratings">Please rate all four dimensions before continuing</div>
+  </div>`;
+}
+
+// ─── STEP 5: Exit Insights ─────────────────────────────────────────────────────
+function renderStep4() {
+  const reason = data.leaveReason;
+  const isPersonal = PURELY_PERSONAL.includes(reason);
+
+  const stayLabel = isPersonal
+    ? `Was there anything IndiaMART could have done to better support you? <span class="opt">(optional)</span>`
+    : `What could IndiaMART have done to make your experience better? <span class="req">*</span>`;
+  const stayRequired = isPersonal ? "" : `<div class="err-msg" id="err-whatWouldStay">Please fill this in</div>`;
+
+  const npsRow = `
+  <div class="field">
+    <label>How likely are you to recommend IndiaMART as a place to work to a friend or colleague? <span class="opt">(optional)</span></label>
+    <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:4px">
+      ${[0,1,2,3,4,5,6,7,8,9,10].map(n => {
+        let bg = "background:#fff;border-color:var(--border);color:var(--gray-600)";
+        if(data.nps===n) bg = n<=6 ? "background:#fdf0ee;border-color:#c0392b;color:#c0392b" : n<=8 ? "background:#fef6ec;border-color:#e67e22;color:#b7601a" : "background:#eaf7ee;border-color:#27ae60;color:#1a7a40";
+        return `<button style="width:38px;height:34px;border-radius:8px;border:1.5px solid;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;${bg}" onclick="setNps(${n})">${n}</button>`;
+      }).join("")}
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--gray-400);margin-top:5px"><span>0 = Would not recommend</span><span>10 = Would strongly recommend</span></div>
+  </div>`;
+
+  return `
+  <div class="section-title">Exit Insights</div>
+  <div class="field">
+    <label>What did you like most about working at IndiaMART? <span class="req">*</span></label>
+    <textarea id="whatTriggered" placeholder="e.g. great team, learning culture, brand reputation, exposure...">${esc(data.whatTriggered)}</textarea>
+    <div class="err-msg" id="err-whatTriggered">Please fill this in</div>
+  </div>
+  <div class="field">
+    <label>${stayLabel}</label>
+    <textarea id="whatWouldStay" placeholder="${isPersonal ? "e.g. flexible leave, remote work, health support..." : "e.g. salary revision, different manager, promotion, flexibility..."}">${esc(data.whatWouldStay)}</textarea>
+    ${stayRequired}
+  </div>
+  ${npsRow}
+  <div class="field">
+    <label>Would you consider coming back to IndiaMART in the future? <span class="opt">(optional)</span></label>
+    <div class="radio-grid">${RETURN_OPTS.map(o => radioOpt("wouldReturn", o, data.wouldReturn===o)).join("")}</div>
+  </div>
+  <div class="field">
+    <label>Additional Comments <span style="font-size:11px;color:var(--gray-400);font-weight:400;">(HRBP only — not shared with employee)</span></label>
+    <textarea id="additionalComments" placeholder="Retention attempts, sentiment, performance notes, anything off-record...">${esc(data.additionalComments)}</textarea>
+  </div>`;
+}
+
+function radioOpt(name, val, checked, fontSize) {
+  const fs = fontSize ? `font-size:${fontSize}` : "";
+  return `<label class="radio-opt ${checked?"active":""}" style="${fs}" onclick="pick('${name}','${val}')">
+    <input type="radio" name="${name}" ${checked?"checked":""} /> ${val}
+  </label>`;
+}
+
+function esc(s) { return (s||"").replace(/"/g,"&quot;"); }
+
+function validateEmail(el) {
+  const val = el.value.trim();
+  const errEl = document.getElementById("err-hrbpEmail");
+  if (!val) {
+    errEl.textContent = "Email is required";
+    errEl.classList.add("show"); el.classList.add("error");
+  } else if (!val.toLowerCase().endsWith("@indiamart.com")) {
+    errEl.textContent = "Please enter a valid @indiamart.com email";
+    errEl.classList.add("show"); el.classList.add("error");
+  } else {
+    errEl.classList.remove("show"); el.classList.remove("error");
+  }
+  data.hrbpEmail = val;
+}
+function clearEmailErr(el) {
+  if (el.value.toLowerCase().endsWith("@indiamart.com")) {
+    document.getElementById("err-hrbpEmail")?.classList.remove("show");
+    el.classList.remove("error");
+  }
+}
+function pick(field, val) { data[field] = val; render(); }
+function setRating(key, val) { data[key] = val; render(); }
+function setNps(val) { data.nps = val; render(); }
+function syncF(field, id) { const el = document.getElementById(id); if (el) data[field] = el.value; }
+
+function bindEvents() {
+  ["empName","empId","hrbpEmail","newOrg","newIndustry","newDesignation","newSalaryExact",
+   "whatTriggered","whatWouldStay","additionalComments",
+   "skillUtilComment","fairnessComment","psychSafetyComment","internalMobilityComment"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener("blur", () => { data[id] = el.value; });
+  });
+  const emailEl = document.getElementById("hrbpEmail");
+  if (emailEl) {
+    emailEl.addEventListener("blur", () => {
+      data.hrbpEmail = emailEl.value.trim();
+      const errEl = document.getElementById("err-hrbpEmail");
+      if (!data.hrbpEmail || !data.hrbpEmail.toLowerCase().endsWith("@indiamart.com")) {
+        emailEl.classList.add("error");
+        if (errEl) errEl.classList.add("show");
+      } else {
+        emailEl.classList.remove("error");
+        if (errEl) errEl.classList.remove("show");
+      }
+    });
+    emailEl.addEventListener("input", () => {
+      if (emailEl.value.toLowerCase().endsWith("@indiamart.com")) {
+        emailEl.classList.remove("error");
+        const errEl = document.getElementById("err-hrbpEmail");
+        if (errEl) errEl.classList.remove("show");
+      }
+    });
+  }
+  const empIdEl = document.getElementById("empId");
+  if (empIdEl) empIdEl.addEventListener("input", () => { empIdEl.value = empIdEl.value.replace(/\D/g,""); });
+}
+
+function validateStep() {
+  let valid = true;
+  const show = id => { const e = document.getElementById(id); if(e) e.classList.add("show"); };
+  const hide = id => { const e = document.getElementById(id); if(e) e.classList.remove("show"); };
+  const markErr = id => { const e = document.getElementById(id); if(e) e.classList.add("error"); };
+  const clearErr = id => { const e = document.getElementById(id); if(e) e.classList.remove("error"); };
+
+  if (step === 0) {
+    data.empName    = document.getElementById("empName")?.value?.trim() || "";
+    data.empId      = document.getElementById("empId")?.value?.trim() || "";
+    data.hrbpEmail  = document.getElementById("hrbpEmail")?.value?.trim() || "";
+    data.newOrg     = document.getElementById("newOrg")?.value?.trim() || data.newOrg;
+    data.newIndustry= document.getElementById("newIndustry")?.value?.trim() || data.newIndustry;
+    data.newDesignation = document.getElementById("newDesignation")?.value?.trim() || data.newDesignation;
+
+    if (!data.empName) { show("err-empName"); markErr("empName"); valid=false; } else { hide("err-empName"); clearErr("empName"); }
+    if (!data.empId || !/^\d+$/.test(data.empId)) { show("err-empId"); markErr("empId"); valid=false; } else { hide("err-empId"); clearErr("empId"); }
+    if (!data.hrbpEmail || !data.hrbpEmail.toLowerCase().endsWith("@indiamart.com")) { show("err-hrbpEmail"); markErr("hrbpEmail"); valid=false; } else { hide("err-hrbpEmail"); clearErr("hrbpEmail"); }
+    if (!data.noticePeriod) { show("err-noticePeriod"); document.querySelectorAll("#rg-noticePeriod .radio-opt").forEach(el=>el.classList.add("error-border")); valid=false; }
+    else { hide("err-noticePeriod"); document.querySelectorAll("#rg-noticePeriod .radio-opt").forEach(el=>el.classList.remove("error-border")); }
+    if (!data.leaveReason) { show("err-leaveReason"); markErr("leaveReason"); valid=false; } else { hide("err-leaveReason"); clearErr("leaveReason"); }
+    if (data.leaveReason && !SKIP_PUSH_PULL.includes(data.leaveReason) && !data.pushPull) { show("err-pushPull"); document.querySelectorAll("#rg-pushPull .radio-opt").forEach(el=>el.classList.add("error-border")); valid=false; } else { hide("err-pushPull"); document.querySelectorAll("#rg-pushPull .radio-opt").forEach(el=>el.classList.remove("error-border")); }
+
+  }
+
+  if (step === 1) {
+    // Save reasonContext
+    data.reasonContext = document.getElementById('reasonContext')?.value?.trim() || data.reasonContext;
+    // Validate reasonQ1 if there is a question for this reason
+    const rqCheck = REASON_QUESTIONS[data.leaveReason];
+    if (rqCheck && rqCheck.q && !data.reasonQ1) {
+      const show = id => { const e = document.getElementById(id); if(e) e.classList.add('show'); };
+      show('err-reasonQ1'); valid = false;
+    } else {
+      const hide = id => { const e = document.getElementById(id); if(e) e.classList.remove('show'); };
+      hide('err-reasonQ1');
+    }
+    const showJobBlock = !NON_JOB_REASONS.includes(data.leaveReason);
+    data.newOrg = document.getElementById('newOrg')?.value?.trim() || data.newOrg;
+    data.newIndustry = document.getElementById('newIndustry')?.value?.trim() || data.newIndustry;
+    data.newDesignation = document.getElementById('newDesignation')?.value?.trim() || data.newDesignation;
+    if (showJobBlock) {
+      const show = id => { const e = document.getElementById(id); if(e) e.classList.add('show'); };
+      const hide = id => { const e = document.getElementById(id); if(e) e.classList.remove('show'); };
+      const markErr = id => { const e = document.getElementById(id); if(e) e.classList.add('error'); };
+      const clearErr = id => { const e = document.getElementById(id); if(e) e.classList.remove('error'); };
+      if (!data.newOrg) { show('err-newOrg'); markErr('newOrg'); valid=false; } else { hide('err-newOrg'); clearErr('newOrg'); }
+      if (!data.newIndustry) { show('err-newIndustry'); markErr('newIndustry'); valid=false; } else { hide('err-newIndustry'); clearErr('newIndustry'); }
+      if (!data.newDesignation) { show('err-newDesignation'); markErr('newDesignation'); valid=false; } else { hide('err-newDesignation'); clearErr('newDesignation'); }
+      if (!data.newSalaryRange) { show('err-newSalaryRange'); valid=false; } else { hide('err-newSalaryRange'); }
+    }
+  }
+
+  if (step === 2) {
+    data.reasonContext = document.getElementById('reasonContext')?.value?.trim() || data.reasonContext;
+    const reason = data.leaveReason;
+    const isPersonal = PURELY_PERSONAL.includes(reason);
+    const skipInternalMob = SKIP_INTERNAL_MOBILITY.includes(reason);
+    ["internalMobilityComment"].forEach(id => {
+      const el = document.getElementById(id); if(el) data[id] = el.value;
+    });
+    const skipSkillQ = reason === "Lack of Learning Opportunities";
+    const skipFairQ = reason === "Career Growth";
+    if (!isPersonal) {
+      if (!skipSkillQ && !data.skillUtil) { show("err-skillUtil"); valid=false; } else { hide("err-skillUtil"); }
+      if (!skipFairQ && !data.fairness) { show("err-fairness"); valid=false; } else { hide("err-fairness"); }
+      if (!data.psychSafety) { show("err-psychSafety"); valid=false; } else { hide("err-psychSafety"); }
+      if (!skipInternalMob && !data.internalMobility) { show("err-internalMobility"); valid=false; } else { hide("err-internalMobility"); }
+    }
+  }
+
+  if (step === 3) {
+    const allRated = data.ratingManager!==null && data.ratingPeers!==null && data.ratingWorkEnv!==null && data.ratingLG!==null;
+    if (!allRated) { show("err-ratings"); valid=false; } else { hide("err-ratings"); }
+    ["Manager","Peers","WorkEnv","LG"].forEach(k => {
+      const el = document.getElementById("fb"+k); if(el) data["feedback"+k] = el.value;
+    });
+  }
+
+  if (step === 4) {
+    data.whatTriggered    = document.getElementById("whatTriggered")?.value?.trim() || "";
+    data.whatWouldStay    = document.getElementById("whatWouldStay")?.value?.trim() || "";
+    data.additionalComments = document.getElementById("additionalComments")?.value?.trim() || "";
+    const isPersonal = PURELY_PERSONAL.includes(data.leaveReason);
+    if (!data.whatTriggered) { show("err-whatTriggered"); markErr("whatTriggered"); valid=false; } else { hide("err-whatTriggered"); clearErr("whatTriggered"); }
+    if (!isPersonal && !data.whatWouldStay) { show("err-whatWouldStay"); markErr("whatWouldStay"); valid=false; } else { hide("err-whatWouldStay"); clearErr("whatWouldStay"); }
+  }
+
+  if (!valid) window.scrollTo({top:0, behavior:"smooth"});
+  return valid;
+}
+
+function goNext() {
+  if (!validateStep()) return;
+  if (step < 4) { step++; render(); window.scrollTo({top:0}); }
+  else { submitForm(); }
+}
+function goBack() { if (step > 0) { step--; render(); window.scrollTo({top:0}); } }
+
+async function submitForm() {
+  document.getElementById("overlay").classList.add("show");
+  const payload = {
+    timestamp: new Date().toISOString(),
+    empName: data.empName, empId: data.empId, hrbpEmail: data.hrbpEmail,
+    noticePeriod: data.noticePeriod, leaveReason: data.leaveReason,
+    roleNature: data.roleNature, sameFunction: data.sameFunction,
+    locationProximity: data.locationProximity,
+    newOrg: data.newOrg, newIndustry: data.newIndustry,
+    newDesignation: data.newDesignation, newSalaryRange: data.newSalaryRange, newSalaryExact: data.newSalaryExact,
+    skillUtil: data.skillUtil, fairness: data.fairness, psychSafety: data.psychSafety,
+    workExpNotes: data.workExpNotes,
+    internalMobility: data.internalMobility, internalMobilityComment: data.internalMobilityComment,
+    resourceAdequacy: data.resourceAdequacy, leadershipTransparency: data.leadershipTransparency,
+    teamSuccession: data.teamSuccession,
+    ratingManager: data.ratingManager, ratingPeers: data.ratingPeers,
+    ratingWorkEnv: data.ratingWorkEnv, ratingLG: data.ratingLG,
+    feedbackManager: data.feedbackManager, feedbackPeers: data.feedbackPeers,
+    feedbackWorkEnv: data.feedbackWorkEnv, feedbackLG: data.feedbackLG,
+    pushPull: data.pushPull, reasonQ1: data.reasonQ1, reasonContext: data.reasonContext,
+    nps: data.nps, whatTriggered: data.whatTriggered,
+    whatWouldStay: data.whatWouldStay, wouldReturn: data.wouldReturn,
+    additionalComments: data.additionalComments
+  };
+  try {
+    const params = new URLSearchParams({ data: JSON.stringify(payload) });
+    await new Promise((resolve) => {
+      const img = new Image();
+      img.onload = img.onerror = () => resolve();
+      img.src = SHEET_URL + '?' + params.toString();
+      setTimeout(resolve, 3000);
+    });
+  } catch(e) {}
+  document.getElementById("overlay").classList.remove("show");
+  showSuccess();
+}
+
+function showSuccess() {
+  document.getElementById("form-body").innerHTML = `
+    <div class="success-wrap">
+      <div class="success-icon">✅</div>
+      <h2>Exit connect recorded</h2>
+      <p>The response for <strong>${esc(data.empName)}</strong> (ID: ${esc(data.empId)}) has been submitted and saved to the sheet.</p>
+      <button class="reset-btn" onclick="resetForm()">+ Record another exit</button>
+    </div>`;
+  document.getElementById("prog").style.width = "100%";
+}
+
+function resetForm() {
+  step = 0;
+  data = { empName:"", empId:"", hrbpEmail:"", noticePeriod:"", leaveReason:"", roleNature:"", sameFunction:"", locationProximity:"", newOrg:"", newDesignation:"", newIndustry:"", newSalaryRange:"", newSalaryExact:"", skillUtil:"", fairness:"", psychSafety:"", workExpNotes:"", internalMobility:"", internalMobilityComment:"", resourceAdequacy:"", leadershipTransparency:"", teamSuccession:"", ratingManager:null, ratingPeers:null, ratingWorkEnv:null, ratingLG:null, feedbackManager:"", feedbackPeers:"", feedbackWorkEnv:"", feedbackLG:"", pushPull:"", reasonQ1:"", reasonContext:"", nps:null, whatTriggered:"", whatWouldStay:"", wouldReturn:"", additionalComments:"" };
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
